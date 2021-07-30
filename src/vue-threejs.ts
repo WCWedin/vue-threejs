@@ -1,0 +1,6 @@
+export { default as PerspectiveCamera } from './cameras/PerspectiveCamera'
+export { default as BoxGeometry } from './geometries/BoxGeometry'
+export { default as Material } from './materials/Material'
+export { default as Mesh } from './objects/Mesh'
+export { default as WebglRenderer } from './renderers/WebglRenderer'
+export { default as Scene } from './scenes/Scene'
