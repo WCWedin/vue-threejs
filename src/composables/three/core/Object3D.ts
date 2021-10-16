@@ -1,7 +1,7 @@
 import { Euler, Matrix4, Object3D, Quaternion, Vector3 } from 'three'
-import { ComposableWrapper, Props, Emits, FromProps, isRefTo, getSyncFunctions, getSyncByCopyFunctions, mapRef } from '@/vue/Wrapped'
-import { computed, Ref, watch } from 'vue'
-import { useScopeProvider, useScopeStorage } from '@/vue/Scope'
+import { computed, inject, InjectionKey, onMounted, onUnmounted, provide, ref, Ref, shallowRef, watch } from 'vue'
+import { ComposableWrapper, Props, FromProps, getSyncFunctions, getSyncByCopyFunctions, mapRef } from '@/composables/Wrapped'
+import { useScopeProvider, useScopeStorage } from '@/composables/Scope'
 
 /** A 3D rotation represented as a unit-vector rotation axis paired with rotation angle in radians. */
 export class AxisAngle {
@@ -21,9 +21,6 @@ export class AxisAngle {
   }
 }
 
-// TODO: Implement reactive lookAt functionality as a composable.
-
-// TODO: Add remaining object3D props and doc
 export interface Object3DProps {
   /** An optional name by which other components can retrieve the backing `Object3D`.
    *  @default null
@@ -123,21 +120,28 @@ const object3DProps: Props<Object3DProps> = {
   }
 }
 
-const object3DEmits: Emits = {}
+const object3DKey: InjectionKey<Object3D> = Symbol('object3D')
 
 function useObject3D(props: FromProps<Object3DProps>, object3D: Object3D) {
-  // As the Vue component tree changes, this callback will handle the mounting and unmounting of this object's Object3D children.
-  function mountOrUnmountObject3D(ref: Ref<unknown>, name: string | null, oldName: string | null) {
-    if (isRefTo(ref, Object3D)) {
-      if (name === null) {
-        object3D.remove(ref.value)
-      } else if (oldName === null) {
-        object3D.add(ref.value)
-      }
-    }
-  }
-  useScopeProvider(mountOrUnmountObject3D)
-  useScopeStorage(props.name, object3D)
+  const { getItem, storeRef } = useScopeProvider()
+  const { storeRef: storeRef2 } = useScopeStorage(props.name, ref(object3D))
+
+  // Keep this Object3D attached to its current closest Object3D ancestor, if any.
+  provide(object3DKey, object3D)
+  const parentObject3D: Ref<Object3D | null> = shallowRef(null)
+  onMounted(() => {
+    parentObject3D.value = inject(object3DKey, null)
+  })
+  onUnmounted(() => {
+    parentObject3D.value = null
+  })
+  watch(parentObject3D,
+    (parent, oldParent) => {
+      oldParent?.remove(object3D)
+      parent?.add(object3D)
+    },
+    { immediate: true }
+  )
 
   const sync = getSyncFunctions(object3D)
   const syncByCopy = getSyncByCopyFunctions(object3D)
@@ -171,8 +175,7 @@ function useObject3D(props: FromProps<Object3DProps>, object3D: Object3D) {
   )
 
   return {
-    /** The underlying object3D. */
-    object3D,
+    getItem,
     /** The object's position in world space. */
     worldPosition: computed(() => {
       const result = new Vector3()
@@ -198,25 +201,63 @@ function useObject3D(props: FromProps<Object3DProps>, object3D: Object3D) {
       return result
     }),
 
-    /** Write this object's position in world space to the provided result Vector3. */
+    /** Writes this object's position in world space to the provided result Vector3. */
     getWorldPosition: object3D.getWorldPosition,
-    /** Write this object's rotation in world space to the provided result Quaternion. */
+    /** Writes this object's rotation in world space to the provided result Quaternion. */
     getWorldRotation: object3D.getWorldQuaternion,
-    /** Write this object's scale in world space to the provided result Vector3. */
+    /** Writes this object's scale in world space to the provided result Vector3. */
     getWorldScale: object3D.getWorldScale,
-    /** Write this object's direction in world space to the provided result Vector3. */
+    /** Writes this object's direction in world space to the provided result Vector3. */
     getWorldDirection: object3D.getWorldDirection,
-    /** Convert a position in world space to this object's local space. */
+    /** Converts a position in world space to this object's local space. */
     localToWorld: object3D.localToWorld,
-    /** Convert a position in this object's local space to world space. */
+    /** Converts a position in this object's local space to world space. */
     worldToLocal: object3D.worldToLocal,
-    // TODO: add remaining functions and doc
-    updateMatrix: object3D.updateMatrix
+
+    /** Updates the object's local matrix. This is necessary after changing the object's position, rotation, or scale when matrixAutoUpdate is false. */
+    updateMatrix: object3D.updateMatrix,
+    /** Updates the object's world matrix, optionally also updating those of the object's ancestors or descendants. */
+    updateWorldMatrix: object3D.updateWorldMatrix as (updateAncestors: boolean, updateDescendants: boolean) => void,
+
+    /** Executes the provided callback function on this object and each of its descendants. */
+    traverse(callback: (object: Readonly<Object3D>) => void) {
+      object3D.traverse(callback)
+    },
+    /** Executes the provided callback function on this object and each of its ancestors. */
+    traverseAncestors(callback: (object: Readonly<Object3D>) => void) {
+      object3D.traverseAncestors(callback)
+    },
+    /** Executes the provided callback function on this object and each of its visible descendants. */
+    traverseVisible(callback: (object: Readonly<Object3D>) => void) {
+      object3D.traverseVisible(callback)
+    },
+
+    // TODO: yikes?
+    onAfterRender: object3D.onAfterRender,
+    onBeforeRender: object3D.onBeforeRender,
+
+    // TODO: Implement reactive lookAt functionality as a composable.
+
+    // TODO: these
+    animations: object3D.animations,
+    customDepthMaterial: object3D.customDepthMaterial,
+    customDistanceMaterial: object3D.customDistanceMaterial,
+    layers: object3D.layers,
+    matrix: object3D.matrix,
+    matrixAutoUpdate: object3D.matrixAutoUpdate,
+    matrixWorld: object3D.matrixWorld,
+    matrixWorldNeedsUpdate: object3D.matrixWorldNeedsUpdate,
+    modelViewMatrix: object3D.modelViewMatrix,
+    normalMatrix: object3D.normalMatrix,
+
+    object3D,
+    storeRef,
+    storeRef2
   }
 }
 
-export const composableObject3D: ComposableWrapper<Object3D, Object3DProps> = {
+export const composableObject3D: ComposableWrapper<Object3D, Object3DProps, ReturnType<typeof useObject3D>> = {
   props: object3DProps,
-  emits: object3DEmits,
+  emits: {},
   use: useObject3D
 }

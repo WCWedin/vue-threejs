@@ -3,29 +3,37 @@
     "target": "esnext",
     "module": "esnext",
     "strict": true,
-    "noUncheckedIndexedAccess" : true,
+    "noUncheckedIndexedAccess": true,
     "moduleResolution": "node",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "noErrorTruncation": true,
     "declaration": true,
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "types": [
+      "node",
+      "vue"
+    ],
     "baseUrl": ".",
     "paths": {
       "@/*": [
         "src/*"
       ]
     },
-    "lib": [
-      "esnext"
+    "plugins": [
+      {
+        "transform": "@zerollup/ts-transform-paths",
+        "exclude": [
+          "*"
+        ]
+      }
     ]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
-  ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }

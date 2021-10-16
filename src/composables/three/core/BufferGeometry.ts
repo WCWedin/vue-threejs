@@ -1,7 +1,7 @@
 import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute } from 'three'
 import { computed, readonly, Ref, ToRefs, watch } from 'vue'
-import { ComposableWrapper, Props, Emits, getSyncFunctions, mapRef } from '@/vue/Wrapped'
-import { useScopeStorage } from '@/vue/Scope'
+import { ComposableWrapper, Props, getSyncFunctions, mapRef } from '@/composables/Wrapped'
+import { useScopeStorage } from '@/composables/Scope'
 
 export class DrawRange {
   public start: number
@@ -77,10 +77,8 @@ const bufferGeometryProps: Props<BufferGeometryProps> = {
   }
 }
 
-const bufferGeometryEmits: Emits = {}
-
 function useBufferGeometry(props: ToRefs<BufferGeometryProps>, bufferGeometryRef: Ref<BufferGeometry>) {
-  useScopeStorage(props.name, bufferGeometryRef)
+  const { storeRef } = useScopeStorage(props.name, bufferGeometryRef)
 
   watch(bufferGeometryRef,
     (geometry) => {
@@ -95,7 +93,6 @@ function useBufferGeometry(props: ToRefs<BufferGeometryProps>, bufferGeometryRef
   )
 
   return {
-    bufferGeometryRef,
     attributes: computed(() => readonly(bufferGeometryRef.value.attributes)),
     computeBoundingBox: bufferGeometryRef.value.computeBoundingBox,
     boundingBox: computed(() => bufferGeometryRef.value.boundingBox),
@@ -108,12 +105,14 @@ function useBufferGeometry(props: ToRefs<BufferGeometryProps>, bufferGeometryRef
     groups: computed(() => readonly(bufferGeometryRef.value.groups)),
     addGroup: bufferGeometryRef.value.addGroup,
     drawRange: computed(() => readonly(bufferGeometryRef.value.drawRange)),
-    setDrawRange: bufferGeometryRef.value.setDrawRange
+    setDrawRange: bufferGeometryRef.value.setDrawRange,
+    bufferGeometry: computed(() => bufferGeometryRef.value),
+    storeRef
   }
 }
 
-export const composableBufferGeometry: ComposableWrapper<Ref<BufferGeometry>, BufferGeometryProps> = {
+export const composableBufferGeometry: ComposableWrapper<Ref<BufferGeometry>, BufferGeometryProps, ReturnType<typeof useBufferGeometry>> = {
   props: bufferGeometryProps,
-  emits: bufferGeometryEmits,
+  emits: {},
   use: useBufferGeometry
 }

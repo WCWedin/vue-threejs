@@ -1,30 +1,8 @@
 import { Camera, PerspectiveCamera } from 'three'
-import { CameraProps, composableCamera } from '@/cameras/Camera'
-import { ComposableWrapper, Props, Emits, fromProps, FromProps, getSyncFunctions } from '@/vue/Wrapped'
-import { defineComponent } from 'vue'
+import { CameraProps, composableCamera, View } from './Camera'
+import { ComposableWrapper, Props, FromProps, getSyncFunctions } from '@/composables/Wrapped'
 
-export class View {
-  enabled: boolean
-  fullWidth: number
-  fullHeight: number
-  offsetX: number
-  offsetY: number
-  width: number
-  height: number
-
-  constructor(enabled: boolean, fullWidth: number, fullHeight: number, offsetX: number, offsetY: number, width: number, height: number) {
-    this.enabled = enabled
-    this.fullWidth = fullWidth
-    this.fullHeight = fullHeight
-    this.offsetX = offsetX
-    this.offsetY = offsetY
-    this.width = width
-    this.height = height
-  }
-}
-
-export interface PerspectiveCameraProps extends CameraProps
-{
+export interface PerspectiveCameraProps extends CameraProps {
   /**
    *  @default 1
    */
@@ -120,8 +98,6 @@ const perspectiveCameraProps: Props<PerspectiveCameraProps> = {
   }
 }
 
-const perspectiveCameraEmits: Emits = { ...composableCamera.emits }
-
 function usePerspectiveCamera(props: FromProps<PerspectiveCameraProps>, perspectiveCamera: PerspectiveCamera) {
   const sync = getSyncFunctions<PerspectiveCamera, Camera>(perspectiveCamera)
   sync.aspect(props.aspect)
@@ -144,24 +120,13 @@ function usePerspectiveCamera(props: FromProps<PerspectiveCameraProps>, perspect
     getFocalLength: perspectiveCamera.getFocalLength,
     getEffectiveFOV: perspectiveCamera.getEffectiveFOV,
     getFilmWidth: perspectiveCamera.getFilmWidth,
-    getFilmHeight: perspectiveCamera.getFilmHeight
+    getFilmHeight: perspectiveCamera.getFilmHeight,
+    perspectiveCamera
   }
 }
 
-export const composablePerspectiveCamera: ComposableWrapper<PerspectiveCamera, PerspectiveCameraProps> = {
+export const composablePerspectiveCamera: ComposableWrapper<PerspectiveCamera, PerspectiveCameraProps, ReturnType<typeof usePerspectiveCamera>> = {
   props: perspectiveCameraProps,
-  emits: perspectiveCameraEmits,
+  emits: composableCamera.emits,
   use: usePerspectiveCamera
 }
-
-const perspectiveCameraComponent = defineComponent({
-  name: 'PerspectiveCamera',
-  expose: [],
-  props: { ...composablePerspectiveCamera.props },
-  emits: { ...composablePerspectiveCamera.emits },
-  setup(props) {
-    return composablePerspectiveCamera.use(fromProps(props), new PerspectiveCamera())
-  }
-})
-
-export default perspectiveCameraComponent

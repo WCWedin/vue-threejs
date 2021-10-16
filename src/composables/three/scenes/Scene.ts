@@ -1,8 +1,8 @@
 import { Scene, FogBase, Texture, Color, Material } from 'three'
-import { defineComponent, watch } from 'vue'
-import { composableObject3D, Object3DProps } from '@/core/Object3D'
-import { ComposableWrapper, Props, Emits, fromProps, FromProps } from '@/vue/Wrapped'
-import { isInstanceOf, useScopeConsumer } from '@/vue/Scope'
+import { defineComponent, h, VNode, watch } from 'vue'
+import { composableObject3D, Object3DProps } from '../core/Object3D'
+import { ComposableWrapper, Props, fromProps, FromProps, hasProperty } from '@/composables/Wrapped'
+import { isInstanceOf } from '@/composables/Scope'
 
 export interface SceneProps extends Object3DProps {
   /**
@@ -32,14 +32,12 @@ export interface SceneProps extends Object3DProps {
   environment: Texture | string | null
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isFog(value: any): value is FogBase {
-  return typeof value === 'object'
-    && value !== null
-    && typeof value.value === 'string'
-    && typeof value.color === 'object'
-    && typeof value.clone === 'function'
-    && typeof value.toJSON === 'function'
+function isFog(value: unknown): value is FogBase {
+  return value !== null
+    && hasProperty(value, 'value', String)
+    && hasProperty(value, 'color', Color)
+    && hasProperty(value, 'clone', Function)
+    && hasProperty(value, 'toJSON', Function)
 }
 
 const sceneProps: Props<SceneProps> = {
@@ -66,12 +64,10 @@ const sceneProps: Props<SceneProps> = {
   }
 }
 
-const sceneEmits: Emits = { ...composableObject3D.emits }
-
 function useScene(props: FromProps<SceneProps>, scene: Scene) {
-  const { getItem } = useScopeConsumer()
+  const object3D = composableObject3D.use(props, scene)
 
-  const fog = getItem<FogBase | null>(props.fog, isFog)
+  const fog = object3D.getItem<FogBase | null>(props.fog, isFog)
   watch(fog,
     (fog) => {
       scene.fog = fog || null
@@ -79,7 +75,7 @@ function useScene(props: FromProps<SceneProps>, scene: Scene) {
     { immediate: true }
   )
 
-  const overrideMaterial = getItem<Material | null>(props.overrideMaterial, isInstanceOf(Material))
+  const overrideMaterial = object3D.getItem<Material | null>(props.overrideMaterial, isInstanceOf(Material))
   watch(overrideMaterial,
     (overrideMaterial) => {
       scene.overrideMaterial = overrideMaterial || null
@@ -100,7 +96,7 @@ function useScene(props: FromProps<SceneProps>, scene: Scene) {
       || value === null
   }
 
-  const background = getItem<Color | Texture | null>(props.background, isBackground)
+  const background = object3D.getItem<Color | Texture | null>(props.background, isBackground)
   watch(background,
     (background) => {
       scene.background = background || null
@@ -108,7 +104,7 @@ function useScene(props: FromProps<SceneProps>, scene: Scene) {
     { immediate: true }
   )
 
-  const environment = getItem<Texture | null>(props.environment, isInstanceOf(Texture))
+  const environment = object3D.getItem<Texture | null>(props.environment, isInstanceOf(Texture))
   watch(environment,
     (environment) => {
       scene.environment = environment || null
@@ -117,24 +113,27 @@ function useScene(props: FromProps<SceneProps>, scene: Scene) {
   )
 
   return {
-    ...composableObject3D.use(props, scene),
+    ...object3D,
     scene
   }
 }
 
-export const composableScene: ComposableWrapper<Scene, SceneProps> = {
+export const composableScene: ComposableWrapper<Scene, SceneProps, ReturnType<typeof useScene>> = {
   props: sceneProps,
-  emits: sceneEmits,
+  emits: composableObject3D.emits,
   use: useScene
 }
 
 const sceneComponent = defineComponent({
   name: 'Scene',
-  expose: [],
   props: { ...composableScene.props },
   emits: { ...composableScene.emits },
   setup(props) {
-    return composableScene.use(fromProps(props), new Scene())
+    const scene = new Scene()
+    return composableScene.use(fromProps(props), scene)
+  },
+  render(): VNode {
+    return h('vue-threejs-scene', null, this.$slots)
   }
 })
 

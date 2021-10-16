@@ -1,8 +1,8 @@
 import { Material, Plane } from 'three'
 import * as three from 'three'
-import { defineComponent, watch } from 'vue'
-import { ComposableWrapper, Props, Emits, fromProps, FromProps, getSyncFunctions, mapRef, mapValueOf } from '@/vue/Wrapped'
-import { useScopeStorage } from '@/vue/Scope'
+import { defineComponent, h, ref, VNode, watch } from 'vue'
+import { ComposableWrapper, Props, fromProps, FromProps, getSyncFunctions, mapRef, mapValueOf } from '@/composables/Wrapped'
+import { useScopeStorage } from '@/composables/Scope'
 
 export class Side extends Number {
   private static frontSide = new Side(three.FrontSide)
@@ -530,10 +530,8 @@ const materialProps: Props<MaterialProps> = {
   }
 }
 
-const materialEmits: Emits = {}
-
 function useMaterial(props: FromProps<MaterialProps>, material: Material) {
-  useScopeStorage(props.name, material)
+  const { storeRef } = useScopeStorage(props.name, ref(material))
   const sync = getSyncFunctions(material)
 
   sync.name(mapRef(props.name, (name) => name ?? ''))
@@ -628,22 +626,27 @@ function useMaterial(props: FromProps<MaterialProps>, material: Material) {
     }
   )
 
-  return {}
+  return {
+    material,
+    storeRef
+  }
 }
 
-export const composableMaterial: ComposableWrapper<Material, MaterialProps> = {
+export const composableMaterial: ComposableWrapper<Material, MaterialProps, ReturnType<typeof useMaterial>> = {
   props: materialProps,
-  emits: materialEmits,
+  emits: {},
   use: useMaterial
 }
 
 const materialComponent = defineComponent({
   name: 'Material',
-  expose: [],
   props: composableMaterial.props,
   emits: composableMaterial.emits,
   setup(props) {
     return composableMaterial.use(fromProps(props), new Material())
+  },
+  render(): VNode {
+    return h('vue-threejs-material', null, this.$slots)
   }
 })
 

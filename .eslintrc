@@ -1,0 +1,55 @@
+{
+  "root": true,
+  "plugins": [
+    "@typescript-eslint",
+    "only-warn"
+  ],
+  "parser": "vue-eslint-parser",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:vue/vue3-recommended"
+  ],
+  "env": {
+    "vue/setup-compiler-macros": true
+  },
+  "parserOptions": {
+    "parser": "@typescript-eslint/parser",
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "ignorePatterns": [
+    "dist",
+    // This prevents linting of compiled component files.
+    "**/*.vue?vue&*"
+  ],
+  "rules": {
+    "operator-linebreak": "off",
+    "no-use-before-define": "off",
+    "space-before-function-paren": [
+      "warn",
+      {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "always"
+      }
+    ],
+    "vue/singleline-html-element-content-newline": "off",
+    "vue/max-attributes-per-line": "off",
+    "vue/new-line-between-multi-line-property": "off",
+    "vue/max-len": "off",
+    "vue/sort-keys": "off",
+    "vue/no-reserved-component-names": ["error", {
+      "disallowVueBuiltInComponents": false,
+      "disallowVue3BuiltInComponents": false
+    }],
+    "@typescript-eslint/no-explicit-any": [
+      "warn",
+      {
+        "ignoreRestArgs": true
+      }
+    ],
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/ban-types": "off"
+  }
+}

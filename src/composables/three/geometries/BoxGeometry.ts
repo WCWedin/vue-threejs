@@ -1,7 +1,7 @@
 import { BoxGeometry } from 'three'
-import { defineComponent, ref, Ref, ToRefs } from 'vue'
-import { ComposableWrapper, Props, Emits, fromProps } from '@/vue/Wrapped'
-import { BufferGeometryProps, composableBufferGeometry } from '@/core/BufferGeometry'
+import { computed, DefineComponent, defineComponent, h, ref, Ref, ToRefs, VNode } from 'vue'
+import { ComposableWrapper, Props, fromProps } from '@/composables/Wrapped'
+import { BufferGeometryProps, composableBufferGeometry } from '../core/BufferGeometry'
 
 export interface BoxGeometryProps extends BufferGeometryProps {
   width: number,
@@ -40,37 +40,30 @@ const boxGeometryProps: Props<BoxGeometryProps> = {
   }
 }
 
-const boxGeometryEmits: Emits = { ...composableBufferGeometry.emits }
-
 function useBoxGeometry(props: ToRefs<BoxGeometryProps>, boxGeometryRef: Ref<BoxGeometry>) {
-  const geometryProps: ToRefs<BoxGeometryProps> = fromProps(props)
-
   function updateGeometry() {
     const oldValue = boxGeometryRef.value
     boxGeometryRef.value = new BoxGeometry(
-      geometryProps.width.value, geometryProps.height.value, geometryProps.depth.value,
-      geometryProps.widthSegments.value, geometryProps.heightSegments.value, geometryProps.heightSegments.value
+      props.width.value, props.height.value, props.depth.value,
+      props.widthSegments.value, props.heightSegments.value, props.heightSegments.value
     )
     oldValue.dispose()
   }
-
-  composableBufferGeometry.use(geometryProps, boxGeometryRef)
-
   return {
-    boxGeometryRef,
+    ...composableBufferGeometry.use(props, boxGeometryRef),
+    boxGeometry: computed(() => boxGeometryRef.value),
     updateGeometry
   }
 }
 
-export const composableBoxGeometry: ComposableWrapper<Ref<BoxGeometry>, BoxGeometryProps> = {
+export const composableBoxGeometry: ComposableWrapper<Ref<BoxGeometry>, BoxGeometryProps, ReturnType<typeof useBoxGeometry>> = {
   props: boxGeometryProps,
-  emits: boxGeometryEmits,
+  emits: composableBufferGeometry.emits,
   use: useBoxGeometry
 }
 
 const boxGeometryComponent = defineComponent({
   name: 'BoxGeometry',
-  expose: [],
   props: { ...composableBoxGeometry.props },
   emits: { ...composableBoxGeometry.emits },
   setup(props) {
@@ -79,7 +72,11 @@ const boxGeometryComponent = defineComponent({
       typedProps.width.value, typedProps.height.value, typedProps.depth.value,
       typedProps.widthSegments.value, typedProps.heightSegments.value, typedProps.depthSegments.value
     ))
+
     return composableBoxGeometry.use(typedProps, boxGeometry)
+  },
+  render(): VNode {
+    return h('vue-threejs-box-geometry', null, this.$slots)
   }
 })
 
