@@ -18,7 +18,6 @@ function useCamera(props: FromProps<CameraProps>, camera: Camera) {
 
 export const composableCamera: ComposableWrapper<Camera, CameraProps, ReturnType<typeof useCamera>> = {
   props: composableObject3D.props,
-  emits: composableObject3D.emits,
   use: useCamera
 }
 

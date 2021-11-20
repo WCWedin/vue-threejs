@@ -1,6 +1,7 @@
 import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute } from 'three'
 import { computed, readonly, Ref, ToRefs, watch } from 'vue'
-import { ComposableWrapper, Props, getSyncFunctions, mapRef } from '@/composables/Wrapped'
+import { ComposableWrapper, Props } from '@/composables/Wrapped'
+import { getSyncFunctions, mapRef } from '@/utils'
 import { useScopeStorage } from '@/composables/Scope'
 
 export class DrawRange {
@@ -113,6 +114,5 @@ function useBufferGeometry(props: ToRefs<BufferGeometryProps>, bufferGeometryRef
 
 export const composableBufferGeometry: ComposableWrapper<Ref<BufferGeometry>, BufferGeometryProps, ReturnType<typeof useBufferGeometry>> = {
   props: bufferGeometryProps,
-  emits: {},
   use: useBufferGeometry
 }

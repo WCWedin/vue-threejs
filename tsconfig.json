@@ -22,15 +22,7 @@
       "@/*": [
         "src/*"
       ]
-    },
-    "plugins": [
-      {
-        "transform": "@zerollup/ts-transform-paths",
-        "exclude": [
-          "*"
-        ]
-      }
-    ]
+    }
   },
   "exclude": [
     "node_modules",

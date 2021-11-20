@@ -1,6 +1,7 @@
 import { Camera, PerspectiveCamera } from 'three'
 import { CameraProps, composableCamera, View } from './Camera'
-import { ComposableWrapper, Props, FromProps, getSyncFunctions } from '@/composables/Wrapped'
+import { ComposableWrapper, Props, FromProps } from '@/composables/Wrapped'
+import { getSyncFunctions } from '@/utils'
 
 export interface PerspectiveCameraProps extends CameraProps {
   /**
@@ -127,6 +128,5 @@ function usePerspectiveCamera(props: FromProps<PerspectiveCameraProps>, perspect
 
 export const composablePerspectiveCamera: ComposableWrapper<PerspectiveCamera, PerspectiveCameraProps, ReturnType<typeof usePerspectiveCamera>> = {
   props: perspectiveCameraProps,
-  emits: composableCamera.emits,
   use: usePerspectiveCamera
 }

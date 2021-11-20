@@ -1,5 +1,5 @@
 import { BoxGeometry } from 'three'
-import { computed, DefineComponent, defineComponent, h, ref, Ref, ToRefs, VNode } from 'vue'
+import { computed, defineComponent, h, ref, Ref, ToRefs, VNode } from 'vue'
 import { ComposableWrapper, Props, fromProps } from '@/composables/Wrapped'
 import { BufferGeometryProps, composableBufferGeometry } from '../core/BufferGeometry'
 
@@ -58,14 +58,12 @@ function useBoxGeometry(props: ToRefs<BoxGeometryProps>, boxGeometryRef: Ref<Box
 
 export const composableBoxGeometry: ComposableWrapper<Ref<BoxGeometry>, BoxGeometryProps, ReturnType<typeof useBoxGeometry>> = {
   props: boxGeometryProps,
-  emits: composableBufferGeometry.emits,
   use: useBoxGeometry
 }
 
 const boxGeometryComponent = defineComponent({
   name: 'BoxGeometry',
   props: { ...composableBoxGeometry.props },
-  emits: { ...composableBoxGeometry.emits },
   setup(props) {
     const typedProps = fromProps(props)
     const boxGeometry = ref(new BoxGeometry(

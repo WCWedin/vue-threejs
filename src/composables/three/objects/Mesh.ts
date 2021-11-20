@@ -1,7 +1,8 @@
 import { BufferGeometry, Material, Mesh } from 'three'
 import { defineComponent, h, VNode } from 'vue'
 import { Object3DProps, composableObject3D } from '../core/Object3D'
-import { ComposableWrapper, Props, fromProps, FromProps, getSyncFunctions, mapRef } from '@/composables/Wrapped'
+import { ComposableWrapper, Props, fromProps, FromProps } from '@/composables/Wrapped'
+import { getSyncFunctions, mapRef } from '@/utils'
 import { isInstanceOf, useScopeProvider } from '@/composables/Scope'
 
 export interface MeshProps extends Object3DProps {
@@ -44,14 +45,12 @@ function useMesh(props: FromProps<MeshProps>, mesh: Mesh) {
 
 export const composableMaterial: ComposableWrapper<Mesh, MeshProps, ReturnType<typeof useMesh>> = {
   props: meshProps,
-  emits: composableObject3D.emits,
   use: useMesh
 }
 
 const meshComponent = defineComponent({
-  name: 'Mesh',
+  name: 'ThreeMesh',
   props: composableMaterial.props,
-  emits: composableMaterial.emits,
   setup(props) {
     return composableMaterial.use(fromProps(props), new Mesh())
   },

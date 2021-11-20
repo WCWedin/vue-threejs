@@ -1,5 +1,5 @@
 import { Camera, Scene, Vector2, WebGLRenderer } from 'three'
-import { ComposableWrapper, Props, Emits, FromProps } from '@/composables/Wrapped'
+import { ComposableWrapper, Props, FromProps } from '@/composables/Wrapped'
 import { isInstanceOf, useScopeProvider, useScopeStorage } from '@/composables/Scope'
 import { ref, watch } from 'vue'
 
@@ -28,8 +28,6 @@ const webglRendererProps: Props<WebglRendererProps> = {
     required: true
   }
 }
-
-const webglRendererEmits: Emits = {}
 
 function useWebglRenderer(props: FromProps<WebglRendererProps>, webglRenderer: WebGLRenderer) {
   const { getItem, storeRef } = useScopeProvider()
@@ -95,6 +93,5 @@ function useWebglRenderer(props: FromProps<WebglRendererProps>, webglRenderer: W
 
 export const composableWebglRenderer: ComposableWrapper<WebGLRenderer, WebglRendererProps, ReturnType<typeof useWebglRenderer>> = {
   props: webglRendererProps,
-  emits: webglRendererEmits,
   use: useWebglRenderer
 }

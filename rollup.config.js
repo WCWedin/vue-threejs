@@ -1,25 +1,22 @@
 import eslint from '@rollup/plugin-eslint'
-import resolve from '@rollup/plugin-node-resolve'
-import typescript from 'rollup-plugin-typescript2'
-import ttypescript from 'ttypescript'
-import vue from 'rollup-plugin-vue'
 import styles from 'rollup-plugin-styles'
 import cssNext from 'postcss-preset-env'
+import typescript from 'rollup-plugin-typescript2'
+import ttypescript from 'ttypescript'
 
 export default {
   input: 'src/vue-threejs.ts',
   output: {
-    file: 'dist/vue-threejs.mjs',
-    format: 'es'
+    file: 'dist/vue-threejs.mjs'
   },
+  external: ['vue', 'three'],
   plugins: [
-    eslint(),
-    vue(),
-    resolve({
-      extensions: ['.js', '.jsx', '.ts', '.tsx', '.vue'],
+    eslint({
+      include: '*.ts'
     }),
     styles({
-      modules: true,
+      autoModules: id => id.endsWith(".css"),
+      dts: true,
       plugins: [cssNext]
     }),
     typescript({

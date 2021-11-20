@@ -1,6 +1,7 @@
 import { Camera, OrthographicCamera } from 'three'
 import { CameraProps, composableCamera, View } from './Camera'
-import { ComposableWrapper, Props, FromProps, getSyncFunctions } from '@/composables/Wrapped'
+import { ComposableWrapper, Props, FromProps, } from '@/composables/Wrapped'
+import { getSyncFunctions } from '@/utils'
 
 export interface OrthographicCameraProps extends CameraProps {
   /**
@@ -96,6 +97,5 @@ function useOrthographicCamera(props: FromProps<OrthographicCameraProps>, orthog
 
 export const composableOrthographicCamera: ComposableWrapper<OrthographicCamera, OrthographicCameraProps, ReturnType<typeof useOrthographicCamera>> = {
   props: orthographicCameraProps,
-  emits: composableCamera.emits,
   use: useOrthographicCamera
 }

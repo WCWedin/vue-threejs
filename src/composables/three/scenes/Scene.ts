@@ -1,7 +1,8 @@
 import { Scene, FogBase, Texture, Color, Material } from 'three'
 import { defineComponent, h, VNode, watch } from 'vue'
 import { composableObject3D, Object3DProps } from '../core/Object3D'
-import { ComposableWrapper, Props, fromProps, FromProps, hasProperty } from '@/composables/Wrapped'
+import { ComposableWrapper, Props, fromProps, FromProps } from '@/composables/Wrapped'
+import { hasProperty } from '@/utils'
 import { isInstanceOf } from '@/composables/Scope'
 
 export interface SceneProps extends Object3DProps {
@@ -120,14 +121,12 @@ function useScene(props: FromProps<SceneProps>, scene: Scene) {
 
 export const composableScene: ComposableWrapper<Scene, SceneProps, ReturnType<typeof useScene>> = {
   props: sceneProps,
-  emits: composableObject3D.emits,
   use: useScene
 }
 
 const sceneComponent = defineComponent({
-  name: 'Scene',
+  name: 'ThreeScene',
   props: { ...composableScene.props },
-  emits: { ...composableScene.emits },
   setup(props) {
     const scene = new Scene()
     return composableScene.use(fromProps(props), scene)
