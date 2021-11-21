@@ -31,7 +31,7 @@ const webglRendererProps: Props<WebglRendererProps> = {
 
 function useWebglRenderer(props: FromProps<WebglRendererProps>, webglRenderer: WebGLRenderer) {
   const { getItem, storeRef } = useScopeProvider()
-  useScopeStorage(props.name, ref(webglRenderer))
+  const { storeRef: storeRef2 } = useScopeStorage(props.name, ref(webglRenderer))
   const scene = getItem<Scene>(props.scene, isInstanceOf(Scene))
   const camera = getItem<Camera>(props.camera, isInstanceOf(Camera))
 
@@ -87,7 +87,8 @@ function useWebglRenderer(props: FromProps<WebglRendererProps>, webglRenderer: W
 
   return {
     webglRenderer,
-    storeRef
+    storeRef,
+    storeRef2
   }
 }
 

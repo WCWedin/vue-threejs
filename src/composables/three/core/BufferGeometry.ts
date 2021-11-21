@@ -2,7 +2,7 @@ import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute } from 'thr
 import { computed, readonly, Ref, ToRefs, watch } from 'vue'
 import { ComposableWrapper, Props } from 'composables/Wrapped'
 import { getSyncFunctions, mapRef } from 'utils'
-import { useScopeStorage } from 'composables/Scope'
+import { useScopeProvider, useScopeStorage } from 'composables/Scope'
 
 export class DrawRange {
   public start: number
@@ -79,7 +79,8 @@ const bufferGeometryProps: Props<BufferGeometryProps> = {
 }
 
 function useBufferGeometry(props: ToRefs<BufferGeometryProps>, bufferGeometryRef: Ref<BufferGeometry>) {
-  const { storeRef } = useScopeStorage(props.name, bufferGeometryRef)
+  const { storeRef } = useScopeProvider()
+  const { storeRef: storeRef2 } = useScopeStorage(props.name, bufferGeometryRef)
 
   watch(bufferGeometryRef,
     (geometry) => {
@@ -108,7 +109,9 @@ function useBufferGeometry(props: ToRefs<BufferGeometryProps>, bufferGeometryRef
     drawRange: computed(() => readonly(bufferGeometryRef.value.drawRange)),
     setDrawRange: bufferGeometryRef.value.setDrawRange,
     bufferGeometry: computed(() => bufferGeometryRef.value),
-    storeRef
+    
+    storeRef,
+    storeRef2
   }
 }
 

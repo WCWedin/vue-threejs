@@ -11,6 +11,6 @@ export default defineComponent({
     return composableOrthographicCamera.use(propRefs, orthographicCamera)
   },
   render(): VNode {
-    return h('vue-threejs-orthographic-camera', null, this.$slots)
+    return h('three-orthographic-camera', null, this.$slots)
   }
 })

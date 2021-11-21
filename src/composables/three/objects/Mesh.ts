@@ -55,7 +55,7 @@ const meshComponent = defineComponent({
     return composableMaterial.use(fromProps(props), new Mesh())
   },
   render(): VNode {
-    return h('vue-threejs-mesh', null, this.$slots)
+    return h('three-mesh', null, this.$slots)
   }
 })
 

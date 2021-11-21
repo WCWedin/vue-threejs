@@ -5,14 +5,17 @@ import { defineComponent, h, Ref, ref, VNode, watch } from 'vue'
 import styles from './WebglRenderer.css'
 
 export default defineComponent({
+  name: 'ThreeWebglRenderer',
   props: composableWebglRenderer.props,
   setup(props) {
-    const div: Ref<HTMLDivElement | null> = ref(null)
+    const vueRoot: Ref<HTMLElement | null> = ref(null)
     const webglRenderer = new WebGLRenderer()
+    const canvas = webglRenderer.domElement
     
-    watch(div,
-      (div) => {
-        div?.appendChild(webglRenderer.domElement)
+    watch(vueRoot,
+      (vueRoot) => {
+        canvas.classList.add(styles.renderer)
+        vueRoot?.parentElement?.replaceChild(canvas, vueRoot)
       },
       { flush: 'post' }
     )
@@ -24,10 +27,10 @@ export default defineComponent({
         // Renaming `render` prevents Vue DevTools from mistaking this property for a component, which would otherwise break inspectability.
         webglRenderer: { ...composable.webglRenderer, render: undefined, renderFunc: composable.webglRenderer.render }
       },
-      div
+      vueRoot
     }
   },
   render(): VNode {
-    return h('div', { class: styles.renderer }, this.$slots)
+    return h('three-webgl-renderer', { ref: 'vueRoot' }, this.$slots)
   }
 })

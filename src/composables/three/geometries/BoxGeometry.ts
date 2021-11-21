@@ -62,7 +62,7 @@ export const composableBoxGeometry: ComposableWrapper<Ref<BoxGeometry>, BoxGeome
 }
 
 const boxGeometryComponent = defineComponent({
-  name: 'BoxGeometry',
+  name: 'ThreeBoxGeometry',
   props: { ...composableBoxGeometry.props },
   setup(props) {
     const typedProps = fromProps(props)
@@ -74,7 +74,7 @@ const boxGeometryComponent = defineComponent({
     return composableBoxGeometry.use(typedProps, boxGeometry)
   },
   render(): VNode {
-    return h('vue-threejs-box-geometry', null, this.$slots)
+    return h('three-box-geometry', null, this.$slots)
   }
 })
 

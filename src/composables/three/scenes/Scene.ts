@@ -132,7 +132,7 @@ const sceneComponent = defineComponent({
     return composableScene.use(fromProps(props), scene)
   },
   render(): VNode {
-    return h('vue-threejs-scene', null, this.$slots)
+    return h('three-scene', null, this.$slots)
   }
 })
 

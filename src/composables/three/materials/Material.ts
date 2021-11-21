@@ -3,7 +3,7 @@ import * as three from 'three'
 import { defineComponent, h, ref, VNode, watch } from 'vue'
 import { ComposableWrapper, Props, fromProps, FromProps } from 'composables/Wrapped'
 import { getSyncFunctions, mapRef, mapValueOf } from 'utils'
-import { useScopeStorage } from 'composables/Scope'
+import { useScopeProvider, useScopeStorage } from 'composables/Scope'
 
 export class Side extends Number {
   private static frontSide = new Side(three.FrontSide)
@@ -532,7 +532,8 @@ const materialProps: Props<MaterialProps> = {
 }
 
 function useMaterial(props: FromProps<MaterialProps>, material: Material) {
-  const { storeRef } = useScopeStorage(props.name, ref(material))
+  const { storeRef } = useScopeProvider()
+  const { storeRef: storeRef2 } = useScopeStorage(props.name, ref(material))
   const sync = getSyncFunctions(material)
 
   sync.name(mapRef(props.name, (name) => name ?? ''))
@@ -629,7 +630,8 @@ function useMaterial(props: FromProps<MaterialProps>, material: Material) {
 
   return {
     material,
-    storeRef
+    storeRef,
+    storeRef2
   }
 }
 
@@ -645,7 +647,7 @@ const materialComponent = defineComponent({
     return composableMaterial.use(fromProps(props), new Material())
   },
   render(): VNode {
-    return h('vue-threejs-material', null, this.$slots)
+    return h('three-material', null, this.$slots)
   }
 })
 

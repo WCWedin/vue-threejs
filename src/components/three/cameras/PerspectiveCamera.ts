@@ -4,11 +4,12 @@ import { fromProps } from 'composables/Wrapped'
 import { defineComponent, h, VNode } from 'vue'
 
 export default defineComponent({
+  name: "ThreePerspectiveCamera",
   props: composablePerspectiveCamera.props,
   setup(props) {
     return composablePerspectiveCamera.use(fromProps(props), new PerspectiveCamera())
   },
   render(): VNode {
-    return h('vue-threejs-perspective-camera', null, this.$slots)
+    return h('three-perspective-camera', null, this.$slots)
   }
 })
