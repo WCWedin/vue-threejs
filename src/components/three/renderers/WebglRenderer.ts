@@ -1,6 +1,6 @@
 import { WebGLRenderer } from 'three'
-import { fromProps } from '@/composables/Wrapped'
-import { composableWebglRenderer } from '@/composables/three/renderers/WebglRenderer'
+import { fromProps } from 'composables/Wrapped'
+import { composableWebglRenderer } from 'composables/three/renderers/WebglRenderer'
 import { defineComponent, h, Ref, ref, VNode, watch } from 'vue'
 import styles from './WebglRenderer.css'
 

@@ -1,8 +1,8 @@
 import { Euler, Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 import { computed, inject, InjectionKey, onMounted, onUnmounted, provide, ref, Ref, shallowRef, watch } from 'vue'
-import { ComposableWrapper, Props, FromProps } from '@/composables/Wrapped'
-import { getSyncFunctions, getSyncByCopyFunctions, mapRef } from '@/utils'
-import { useScopeProvider, useScopeStorage } from '@/composables/Scope'
+import { ComposableWrapper, Props, FromProps } from 'composables/Wrapped'
+import { getSyncFunctions, getSyncByCopyFunctions, mapRef } from 'utils'
+import { useScopeProvider, useScopeStorage } from 'composables/Scope'
 
 /** A 3D rotation represented as a unit-vector rotation axis paired with rotation angle in radians. */
 export class AxisAngle {

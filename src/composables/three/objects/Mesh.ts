@@ -1,9 +1,9 @@
 import { BufferGeometry, Material, Mesh } from 'three'
 import { defineComponent, h, VNode } from 'vue'
 import { Object3DProps, composableObject3D } from '../core/Object3D'
-import { ComposableWrapper, Props, fromProps, FromProps } from '@/composables/Wrapped'
-import { getSyncFunctions, mapRef } from '@/utils'
-import { isInstanceOf, useScopeProvider } from '@/composables/Scope'
+import { ComposableWrapper, Props, fromProps, FromProps } from 'composables/Wrapped'
+import { getSyncFunctions, mapRef } from 'utils'
+import { isInstanceOf, useScopeProvider } from 'composables/Scope'
 
 export interface MeshProps extends Object3DProps {
   geometry: BufferGeometry | string | null

@@ -1,7 +1,7 @@
 import { Camera, OrthographicCamera } from 'three'
 import { CameraProps, composableCamera, View } from './Camera'
-import { ComposableWrapper, Props, FromProps, } from '@/composables/Wrapped'
-import { getSyncFunctions } from '@/utils'
+import { ComposableWrapper, Props, FromProps, } from 'composables/Wrapped'
+import { getSyncFunctions } from 'utils'
 
 export interface OrthographicCameraProps extends CameraProps {
   /**

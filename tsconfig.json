@@ -17,12 +17,7 @@
       "node",
       "vue"
     ],
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "src/*"
-      ]
-    }
+    "baseUrl": "./src"
   },
   "exclude": [
     "node_modules",

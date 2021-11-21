@@ -1,6 +1,6 @@
 import { Camera } from 'three'
 import { Object3DProps, composableObject3D } from '../core/Object3D'
-import { ComposableWrapper, FromProps } from '@/composables/Wrapped'
+import { ComposableWrapper, FromProps } from 'composables/Wrapped'
 
 export type CameraProps = Object3DProps
 

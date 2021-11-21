@@ -1,9 +1,9 @@
 import { Scene, FogBase, Texture, Color, Material } from 'three'
 import { defineComponent, h, VNode, watch } from 'vue'
 import { composableObject3D, Object3DProps } from '../core/Object3D'
-import { ComposableWrapper, Props, fromProps, FromProps } from '@/composables/Wrapped'
-import { hasProperty } from '@/utils'
-import { isInstanceOf } from '@/composables/Scope'
+import { ComposableWrapper, Props, fromProps, FromProps } from 'composables/Wrapped'
+import { hasProperty } from 'utils'
+import { isInstanceOf } from 'composables/Scope'
 
 export interface SceneProps extends Object3DProps {
   /**

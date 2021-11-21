@@ -1,6 +1,6 @@
 import { OrthographicCamera } from 'three'
-import { composableOrthographicCamera } from '@/composables/three/cameras/OrthographicCamera'
-import { fromProps } from '@/composables/Wrapped'
+import { composableOrthographicCamera } from 'composables/three/cameras/OrthographicCamera'
+import { fromProps } from 'composables/Wrapped'
 import { defineComponent, h, VNode } from 'vue'
 
 export default defineComponent({
