@@ -16,7 +16,6 @@ export default {
     }),
     styles({
       autoModules: id => id.endsWith(".css"),
-      dts: true,
       plugins: [cssNext]
     }),
     typescript({
