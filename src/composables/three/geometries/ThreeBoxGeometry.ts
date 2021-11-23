@@ -1,7 +1,7 @@
 import { BoxGeometry } from 'three'
-import { computed, defineComponent, h, ref, Ref, ToRefs, VNode } from 'vue'
-import { ComposableWrapper, Props, fromProps } from 'composables/Wrapped'
-import { BufferGeometryProps, composableBufferGeometry } from '../core/BufferGeometry'
+import { computed, Ref, ToRefs } from 'vue'
+import { ComposableWrapper, Props } from 'composables/Wrapped'
+import { BufferGeometryProps, composableThreeBufferGeometry } from '../core/ThreeBufferGeometry'
 
 export interface BoxGeometryProps extends BufferGeometryProps {
   width: number,
@@ -13,7 +13,7 @@ export interface BoxGeometryProps extends BufferGeometryProps {
 }
 
 const boxGeometryProps: Props<BoxGeometryProps> = {
-  ...composableBufferGeometry.props,
+  ...composableThreeBufferGeometry.props,
   width: {
     type: Number,
     default: 1
@@ -50,32 +50,15 @@ function useBoxGeometry(props: ToRefs<BoxGeometryProps>, boxGeometryRef: Ref<Box
     oldValue.dispose()
   }
   return {
-    ...composableBufferGeometry.use(props, boxGeometryRef),
+    ...composableThreeBufferGeometry.use(props, boxGeometryRef),
     boxGeometry: computed(() => boxGeometryRef.value),
     updateGeometry
   }
 }
 
-export const composableBoxGeometry: ComposableWrapper<Ref<BoxGeometry>, BoxGeometryProps, ReturnType<typeof useBoxGeometry>> = {
+export const composableThreeBoxGeometry: ComposableWrapper<Ref<BoxGeometry>, BoxGeometryProps, ReturnType<typeof useBoxGeometry>> = {
   props: boxGeometryProps,
   use: useBoxGeometry
 }
 
-const boxGeometryComponent = defineComponent({
-  name: 'ThreeBoxGeometry',
-  props: { ...composableBoxGeometry.props },
-  setup(props) {
-    const typedProps = fromProps(props)
-    const boxGeometry = ref(new BoxGeometry(
-      typedProps.width.value, typedProps.height.value, typedProps.depth.value,
-      typedProps.widthSegments.value, typedProps.heightSegments.value, typedProps.depthSegments.value
-    ))
-
-    return composableBoxGeometry.use(typedProps, boxGeometry)
-  },
-  render(): VNode {
-    return h('three-box-geometry', null, this.$slots)
-  }
-})
-
-export default boxGeometryComponent
+export default composableThreeBoxGeometry

@@ -1,12 +1,12 @@
 import { WebGLRenderer } from 'three'
 import { fromProps } from 'composables/Wrapped'
-import { composableWebglRenderer } from 'composables/three/renderers/WebglRenderer'
 import { defineComponent, h, Ref, ref, VNode, watch } from 'vue'
-import styles from './WebglRenderer.css'
+import { composableThreeWebglRenderer }  from 'composables/three/renderers/ThreeWebglRenderer'
+import styles from './ThreeWebglRenderer.css'
 
-export default defineComponent({
+export const ThreeWebglRenderer = defineComponent({
   name: 'ThreeWebglRenderer',
-  props: composableWebglRenderer.props,
+  props: composableThreeWebglRenderer.props,
   setup(props) {
     const vueRoot: Ref<HTMLElement | null> = ref(null)
     const webglRenderer = new WebGLRenderer()
@@ -20,7 +20,7 @@ export default defineComponent({
       { flush: 'post' }
     )
 
-    const composable = composableWebglRenderer.use(fromProps(props), webglRenderer)
+    const composable = composableThreeWebglRenderer.use(fromProps(props), webglRenderer)
     return {
       ...{
         ...composable,
@@ -34,3 +34,5 @@ export default defineComponent({
     return h('three-webgl-renderer', { ref: 'vueRoot' }, this.$slots)
   }
 })
+
+export default ThreeWebglRenderer

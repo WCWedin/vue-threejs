@@ -115,7 +115,9 @@ function useBufferGeometry(props: ToRefs<BufferGeometryProps>, bufferGeometryRef
   }
 }
 
-export const composableBufferGeometry: ComposableWrapper<Ref<BufferGeometry>, BufferGeometryProps, ReturnType<typeof useBufferGeometry>> = {
+export const composableThreeBufferGeometry: ComposableWrapper<Ref<BufferGeometry>, BufferGeometryProps, ReturnType<typeof useBufferGeometry>> = {
   props: bufferGeometryProps,
   use: useBufferGeometry
 }
+
+export default composableThreeBufferGeometry

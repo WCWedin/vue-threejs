@@ -257,7 +257,9 @@ function useObject3D(props: FromProps<Object3DProps>, object3D: Object3D) {
   }
 }
 
-export const composableObject3D: ComposableWrapper<Object3D, Object3DProps, ReturnType<typeof useObject3D>> = {
+export const composableThreeObject3D: ComposableWrapper<Object3D, Object3DProps, ReturnType<typeof useObject3D>> = {
   props: object3DProps,
   use: useObject3D
 }
+
+export default composableThreeObject3D

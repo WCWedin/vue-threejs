@@ -1,9 +1,9 @@
 import { Scene, FogBase, Texture, Color, Material } from 'three'
-import { defineComponent, h, VNode, watch } from 'vue'
-import { composableObject3D, Object3DProps } from '../core/Object3D'
-import { ComposableWrapper, Props, fromProps, FromProps } from 'composables/Wrapped'
+import { watch } from 'vue'
 import { hasProperty } from 'utils'
+import { ComposableWrapper, Props, FromProps } from 'composables/Wrapped'
 import { isInstanceOf } from 'composables/Scope'
+import { composableThreeObject3D, Object3DProps } from '../core/ThreeObject3D'
 
 export interface SceneProps extends Object3DProps {
   /**
@@ -42,7 +42,7 @@ function isFog(value: unknown): value is FogBase {
 }
 
 const sceneProps: Props<SceneProps> = {
-  ...composableObject3D.props,
+  ...composableThreeObject3D.props,
   fog: {
     type: [Object, String],
     validator: (value) => isFog(value) || typeof value === 'string',
@@ -66,7 +66,7 @@ const sceneProps: Props<SceneProps> = {
 }
 
 function useScene(props: FromProps<SceneProps>, scene: Scene) {
-  const object3D = composableObject3D.use(props, scene)
+  const object3D = composableThreeObject3D.use(props, scene)
 
   const fog = object3D.getItem<FogBase | null>(props.fog, isFog)
   watch(fog,
@@ -119,21 +119,9 @@ function useScene(props: FromProps<SceneProps>, scene: Scene) {
   }
 }
 
-export const composableScene: ComposableWrapper<Scene, SceneProps, ReturnType<typeof useScene>> = {
+export const composableThreeScene: ComposableWrapper<Scene, SceneProps, ReturnType<typeof useScene>> = {
   props: sceneProps,
   use: useScene
 }
 
-const sceneComponent = defineComponent({
-  name: 'ThreeScene',
-  props: { ...composableScene.props },
-  setup(props) {
-    const scene = new Scene()
-    return composableScene.use(fromProps(props), scene)
-  },
-  render(): VNode {
-    return h('three-scene', null, this.$slots)
-  }
-})
-
-export default sceneComponent
+export default composableThreeScene

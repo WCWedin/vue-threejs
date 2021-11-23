@@ -1,7 +1,6 @@
 import { BufferGeometry, Material, Mesh } from 'three'
-import { defineComponent, h, VNode } from 'vue'
-import { Object3DProps, composableObject3D } from '../core/Object3D'
-import { ComposableWrapper, Props, fromProps, FromProps } from 'composables/Wrapped'
+import { Object3DProps, composableThreeObject3D } from '../core/ThreeObject3D'
+import { ComposableWrapper, Props, FromProps } from 'composables/Wrapped'
 import { getSyncFunctions, mapRef } from 'utils'
 import { isInstanceOf, useScopeProvider } from 'composables/Scope'
 
@@ -11,7 +10,7 @@ export interface MeshProps extends Object3DProps {
 }
 
 const meshProps: Props<MeshProps> = {
-  ...composableObject3D.props,
+  ...composableThreeObject3D.props,
   /** @borrows MeshProps.geometry */
   geometry: {
     type: [BufferGeometry, String],
@@ -37,26 +36,15 @@ function useMesh(props: FromProps<MeshProps>, mesh: Mesh) {
   sync.material(mapRef(material, material => material ?? defaultMaterial))
 
   return {
-    ...composableObject3D.use(props, mesh),
+    ...composableThreeObject3D.use(props, mesh),
     mesh,
     storeRef
   }
 }
 
-export const composableMaterial: ComposableWrapper<Mesh, MeshProps, ReturnType<typeof useMesh>> = {
+export const composableThreeMesh: ComposableWrapper<Mesh, MeshProps, ReturnType<typeof useMesh>> = {
   props: meshProps,
   use: useMesh
 }
 
-const meshComponent = defineComponent({
-  name: 'ThreeMesh',
-  props: composableMaterial.props,
-  setup(props) {
-    return composableMaterial.use(fromProps(props), new Mesh())
-  },
-  render(): VNode {
-    return h('three-mesh', null, this.$slots)
-  }
-})
-
-export default meshComponent
+export default composableThreeMesh

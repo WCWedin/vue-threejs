@@ -1,12 +1,12 @@
 import { Camera } from 'three'
-import { Object3DProps, composableObject3D } from '../core/Object3D'
+import { Object3DProps, composableThreeObject3D } from '../core/ThreeObject3D'
 import { ComposableWrapper, FromProps } from 'composables/Wrapped'
 
 export type CameraProps = Object3DProps
 
 function useCamera(props: FromProps<CameraProps>, camera: Camera) {
   return {
-    ...composableObject3D.use(props, camera),
+    ...composableThreeObject3D.use(props, camera),
     matrixWorldInverse: camera.matrixWorldInverse,
     projectionMatrix: camera.projectionMatrix,
     projectionMatrixInverse: camera.projectionMatrixInverse,
@@ -17,9 +17,11 @@ function useCamera(props: FromProps<CameraProps>, camera: Camera) {
 }
 
 export const composableCamera: ComposableWrapper<Camera, CameraProps, ReturnType<typeof useCamera>> = {
-  props: composableObject3D.props,
+  props: composableThreeObject3D.props,
   use: useCamera
 }
+
+export default composableCamera
 
 export class View {
   enabled: boolean

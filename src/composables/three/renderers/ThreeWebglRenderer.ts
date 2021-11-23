@@ -92,7 +92,9 @@ function useWebglRenderer(props: FromProps<WebglRendererProps>, webglRenderer: W
   }
 }
 
-export const composableWebglRenderer: ComposableWrapper<WebGLRenderer, WebglRendererProps, ReturnType<typeof useWebglRenderer>> = {
+export const composableThreeWebglRenderer: ComposableWrapper<WebGLRenderer, WebglRendererProps, ReturnType<typeof useWebglRenderer>> = {
   props: webglRendererProps,
   use: useWebglRenderer
 }
+
+export default composableThreeWebglRenderer

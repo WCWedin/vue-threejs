@@ -1,7 +1,7 @@
 import { Material, Plane } from 'three'
 import * as three from 'three'
-import { defineComponent, h, ref, VNode, watch } from 'vue'
-import { ComposableWrapper, Props, fromProps, FromProps } from 'composables/Wrapped'
+import { ref, watch } from 'vue'
+import { ComposableWrapper, Props, FromProps } from 'composables/Wrapped'
 import { getSyncFunctions, mapRef, mapValueOf } from 'utils'
 import { useScopeProvider, useScopeStorage } from 'composables/Scope'
 
@@ -635,20 +635,9 @@ function useMaterial(props: FromProps<MaterialProps>, material: Material) {
   }
 }
 
-export const composableMaterial: ComposableWrapper<Material, MaterialProps, ReturnType<typeof useMaterial>> = {
+export const composableThreeMaterial: ComposableWrapper<Material, MaterialProps, ReturnType<typeof useMaterial>> = {
   props: materialProps,
   use: useMaterial
 }
 
-const materialComponent = defineComponent({
-  name: 'ThreeMaterial',
-  props: composableMaterial.props,
-  setup(props) {
-    return composableMaterial.use(fromProps(props), new Material())
-  },
-  render(): VNode {
-    return h('three-material', null, this.$slots)
-  }
-})
-
-export default materialComponent
+export default composableThreeMaterial
