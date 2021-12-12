@@ -2,7 +2,8 @@ import { Euler, Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 import { computed, inject, InjectionKey, onMounted, onUnmounted, provide, ref, Ref, shallowRef, watch } from 'vue'
 import { ComposableWrapper, Props, FromProps } from 'composables/Wrapped'
 import { getSyncFunctions, getSyncByCopyFunctions, mapRef } from 'utils'
-import { useScopeProvider, useScopeStorage } from 'composables/Scope'
+import { useScopeConsumer } from 'composables/Scope'
+import { LookAtProps, composableLookAt } from 'composables/LookAt'
 
 /** A 3D rotation represented as a unit-vector rotation axis paired with rotation angle in radians. */
 export class AxisAngle {
@@ -22,7 +23,7 @@ export class AxisAngle {
   }
 }
 
-export interface Object3DProps {
+export interface Object3DProps extends LookAtProps {
   /** An optional name by which other components can retrieve the backing `Object3D`.
    *  @default null
    */
@@ -69,6 +70,7 @@ export interface Object3DProps {
 }
 
 const object3DProps: Props<Object3DProps> = {
+  ...composableLookAt.props,
   /** @borrows Object3DProps.name */
   name: {
     type: String,
@@ -124,8 +126,10 @@ const object3DProps: Props<Object3DProps> = {
 const object3DKey: InjectionKey<Object3D> = Symbol('object3D')
 
 function useObject3D(props: FromProps<Object3DProps>, object3D: Object3D) {
-  const { getItem, storeRef } = useScopeProvider()
-  const { storeRef: storeRef2 } = useScopeStorage(props.name, ref(object3D))
+  const { getItem, storeItem } = useScopeConsumer()
+  storeItem(props.name, ref(object3D))
+  const { lookTarget, lookPosition } = composableLookAt.use(props, object3D)
+
 
   // Keep this Object3D attached to its current closest Object3D ancestor, if any.
   provide(object3DKey, object3D)
@@ -176,7 +180,6 @@ function useObject3D(props: FromProps<Object3DProps>, object3D: Object3D) {
   )
 
   return {
-    getItem,
     /** The object's position in world space. */
     worldPosition: computed(() => {
       const result = new Vector3()
@@ -237,7 +240,7 @@ function useObject3D(props: FromProps<Object3DProps>, object3D: Object3D) {
     onAfterRender: object3D.onAfterRender,
     onBeforeRender: object3D.onBeforeRender,
 
-    // TODO: Implement reactive lookAt functionality as a composable.
+    // TODO: NEXT: Implement reactive lookAt functionality as a composable.
 
     // TODO: these
     animations: object3D.animations,
@@ -252,8 +255,10 @@ function useObject3D(props: FromProps<Object3DProps>, object3D: Object3D) {
     normalMatrix: object3D.normalMatrix,
 
     object3D,
-    storeRef,
-    storeRef2
+    getItem,
+    storeItem,
+    lookTarget,
+    lookPosition
   }
 }
 

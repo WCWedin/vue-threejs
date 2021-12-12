@@ -1,11 +1,14 @@
-import { inject, provide, watch, Ref, WatchStopHandle, InjectionKey, onMounted, onUnmounted, shallowRef, ref } from 'vue'
+import { inject, provide, watch, Ref, WatchStopHandle, InjectionKey, onMounted, onUnmounted, ref, shallowRef } from 'vue'
+ 
+// TODO: Properly dispose of watchers in Scope.ts.
+
 
 // TODO: Move these utility functions.
 function refsType<T>(ref: Ref<unknown>, predicate: (value: unknown) => value is T): ref is Ref<T> {
   return predicate(ref.value)
 }
 
-export function isInstanceOf<T>(...constructors: [{ new(...args: any[]): T } | null]) {
+export function isInstanceOf<T>(...constructors: ({ new(...args: any[]): T } | null)[]) {
   return (value: unknown): value is T => {
     // Test each constructor against the value, with special matching for nulls.
     for (const constructor of constructors) {
@@ -21,13 +24,7 @@ export function isInstanceOf<T>(...constructors: [{ new(...args: any[]): T } | n
   }
 }
 
-export interface Store {
-  set(item: Ref<unknown>, name: string): void
-  remove(item: Ref<unknown>): void
-  get(name: string): Ref<unknown> | undefined
-}
-
-export class LocalStore implements Store {
+class Store {
   protected values = new Map<string, Ref<unknown>>()
   protected names = new Map<Ref<unknown>, string>()
 
@@ -53,170 +50,142 @@ export class LocalStore implements Store {
   }
 }
 
-class MergedStore implements Store {
-  parent: Store
-  local: LocalStore
+type storeItemDef = (name: Ref<string | null> | string, item: Ref<unknown>) => void
+const storeItemKey: InjectionKey<storeItemDef> = Symbol('storeItem')
 
-  constructor(parent: Store, local: LocalStore) {
-    this.parent = parent
-    this.local = local
+type getItemDef = <T = unknown>(prop: Ref<T | string> | string, typePredicate: (value: unknown) => value is T) => Ref<T | undefined>
+const getItemKey: InjectionKey<getItemDef> = Symbol('getItem')
+
+function isUnknown<T>(value: unknown): value is T { return true }
+
+export function useScopeProvider(exposes?: Ref<string[]>, accepts?: Ref<string[]>) {
+  const store = new Store()
+  const { getItem: outerGetItem, storeItem: outerStoreItem } = useScopeConsumer()
+
+  // TODO: return status and termination object
+  function storeItem(name: Ref<string | null> | string, item: Ref<unknown>) {
+    if (typeof name === 'string') name = shallowRef(name)
+    watch([store, name],
+      ([parent, name], [oldParent]) => {
+        if (parent !== oldParent) oldParent?.remove(item)
+        if (name) parent?.set(item, name)
+      },
+      { immediate: true }
+    )
   }
 
-  set(item: Ref<unknown>, name: string) {
-    this.local.set(item, name)
+  // TODO: return status and termination object
+  function getItem<T = unknown>(
+    prop: Ref<T | string> | string,
+    typePredicate: (value: unknown) => value is T = isUnknown
+  ): Ref<T | undefined> {
+    if (typeof prop === 'string') prop = shallowRef(prop)
+
+    const reference = ref<T>()
+    let stopItemWatcher: WatchStopHandle | null = null
+
+
+    watch(prop,
+      (value) => {
+        if (stopItemWatcher) stopItemWatcher()
+        stopItemWatcher = null
+
+        if (typePredicate(value)) {
+          // If the prop's value is already of the target type, pass it through directly.
+          reference.value = value
+        } else if (typeof value === 'string') {
+          // If value is of type string, index into the store;
+          // watch for changes to the store and check for a matching item.
+          const name = value
+          // If a matching item exists in the store, watch for changes and update the returned reference.
+          // TODO: Watch the store instead, and find a cleaner way to keep `reference` in sync with `item`.
+          const item = store.get(name)
+          if (item && refsType(item, typePredicate)) {
+            stopItemWatcher = watch(item,
+              (item) => {
+                reference.value = item
+              },
+              {
+                immediate: true
+              }
+            )
+          } else {
+            // A matching item wasn't found; use undefined.
+            reference.value = undefined
+          }
+        } else {
+          // This should only happen if the caller isn't using the TypeScript bindings or has made an invalid cast.
+          reference.value = undefined
+        }
+      },
+      { immediate: true }
+    )
+
+    return reference
   }
 
-  remove(item: Ref<unknown>) {
-    this.local.remove(item)
+  if (exposes) {
+    watch(exposes,
+      (exposes) => {
+        for (const exposedName in exposes) {
+          const item = getItem(exposedName)
+          outerStoreItem(exposedName, item)
+        }
+      },
+      { immediate: true }
+    )
   }
 
-  get(name: string) {
-    return this.local.get(name) ?? this.parent.get(name)
+  if (accepts) {
+    watch(accepts,
+      (accepts) => {
+        for (const acceptedName in accepts) {
+          const item = outerGetItem(acceptedName)
+          if (item) storeItem(acceptedName, item)
+        }
+      },
+      { immediate: true }
+    )
   }
+
+  provide(storeItemKey, storeItem)
+  provide(getItemKey, getItem)
 }
 
-const storeKey: InjectionKey<Ref<Store>> = Symbol('store')
-
-export function useScopeStorage(name: Ref<string | null>, item: Ref<unknown>) {
-  const storeRef: Ref<Ref<Store> | null> = shallowRef(null)
+export function useScopeConsumer() {
+  let getItem: getItemDef | null = null
+  let storeItem: storeItemDef | null = null
   onMounted(() => {
-    storeRef.value = inject(storeKey, null)
+    getItem = inject(getItemKey, null)
+    storeItem = inject(storeItemKey, null)
   })
   onUnmounted(() => {
-    storeRef.value = null
+    getItem = null
+    storeItem = null
   })
 
-  let stopNameWatcher: WatchStopHandle | null = null
-  watch(storeRef,
-    (store, oldStore) => {
-      oldStore?.value.remove(item)
-      if (stopNameWatcher !== null) {
-        stopNameWatcher()
-      }
-      stopNameWatcher = watch(name,
-        (name) => {
-          if (name !== null) {
-            store?.value.set(item, name)
+  return {
+    getItem<T = unknown>(
+      prop: Ref<T | string> | string,
+      typePredicate: (value: unknown) => value is T = isUnknown): Ref<T | undefined> {
+      const reference: Ref<T | undefined> = shallowRef(undefined)
+      watch(() => getItem,
+        (getItem) => {
+          if (getItem) {
+            watch(getItem(prop, typePredicate),
+              (item) => {
+                reference. value = item
+              },
+              { immediate: true }
+            )
           }
         },
         { immediate: true }
       )
+      return reference
     },
-    { immediate: true }
-  )
-
-  return { storeRef }
-}
-
-/** Composes scope store provider functionality into a component.
- *  @param
- */
-export function useScopeProvider() {
-  const parentStore: Ref<Ref<Store> | null> = shallowRef(null)
-  const localStore: LocalStore = new LocalStore()
-  const store: Ref<Store> = shallowRef(localStore)
-  onMounted(() => {
-    parentStore.value = inject(storeKey, null)
-  })
-  onUnmounted(() => {
-    parentStore.value = null
-  })
-
-  let stopInnerWatcher: WatchStopHandle | null = null
-  watch(parentStore,
-    (parentStore) => {
-      if (stopInnerWatcher !== null) {
-        stopInnerWatcher()
-        stopInnerWatcher = null
-      }
-
-      if (parentStore === null) {
-        store.value = localStore
-      } else {
-        stopInnerWatcher = watch(parentStore,
-          (parentStore) => {
-            store.value = new MergedStore(parentStore, localStore)
-          },
-          { immediate: true }
-        )
-      }
-    },
-    { immediate: true }
-  )
-
-  provide(storeKey, store)
-
-  const storeRef: Ref<Ref<Store> | null> = shallowRef(null)
-  storeRef.value = store
-  return {
-    /** Gets a reference that can retrieve its value from the scope store.
-    *  @param prop A property that provides a value of the appropriate type or a string index into the scope store.
-    *  @param typePredicate A function that returns true if a candidate store value is of the appropriate type.
-    *  @returns A reference that updates as both the prop value and the scope store change.
-    */
-    getItem<T>(prop: Ref<T | string>, typePredicate: (value: unknown) => value is T): Ref<T | undefined> {
-      return getItem(storeRef, prop, typePredicate)
-    },
-    storeRef
-  }
-}
-
-export function getItem<T>(storeRef: Ref<Ref<Store> | null>, prop: Ref<T | string>, typePredicate: (value: unknown) => value is T): Ref<T | undefined> {
-  const reference = ref<T>()
-
-  // Watch for changes to either the prop or the store and update the returned reference as necessary.
-  let stopStoreWatcher: WatchStopHandle | null = null
-  let stopItemWatcher: WatchStopHandle | null = null
-
-  watch([prop, storeRef],
-    ([value, storeRef]) => {
-      // Clear existing watchers.
-      if (stopStoreWatcher) stopStoreWatcher()
-      stopStoreWatcher = null
-      if (stopItemWatcher) stopItemWatcher()
-      stopItemWatcher = null
-
-      if (typePredicate(value)) {
-        // If the prop's value is already of the target type, pass it through directly.
-        reference.value = value
-      } else if (storeRef === null) {
-        // If the store hasn't been initialized, use undefined.
-        reference.value = undefined
-      } else if (typeof value === 'string') {
-        const name = value
-        // If value is of type string, index into the store;
-        // watch for changes to the store and check for a matching item.
-        stopStoreWatcher = watch(storeRef,
-          (store) => {
-            // If a matching item exists in the store, watch for changes and update the returned reference.
-            const item = store.get(name)
-            if (item && refsType(item, typePredicate)) {
-              stopItemWatcher = watch(item,
-                (item) => {
-                  reference.value = item
-                },
-                {
-                  immediate: true
-                }
-              )
-            } else {
-              // A matching item wasn't found; use undefined.
-              reference.value = undefined
-            }
-          },
-          {
-            immediate: true
-          }
-        )
-      } else {
-        // This should only happen if the caller isn't using the TypeScript bindings or has made an invalid cast.
-        reference.value = undefined
-      }
-    },
-    {
-      immediate: true
+    storeItem(name: Ref<string | null> | string, item: Ref<unknown>) {
+      return storeItem?.(name, item)
     }
-  )
-
-  return reference
+  }
 }

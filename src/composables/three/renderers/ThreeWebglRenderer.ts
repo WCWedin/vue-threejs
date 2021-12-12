@@ -1,6 +1,6 @@
 import { Camera, Scene, Vector2, WebGLRenderer } from 'three'
 import { ComposableWrapper, Props, FromProps } from 'composables/Wrapped'
-import { isInstanceOf, useScopeProvider, useScopeStorage } from 'composables/Scope'
+import { isInstanceOf, useScopeConsumer, useScopeProvider } from 'composables/Scope'
 import { ref, watch } from 'vue'
 
 // TODO: This is a large type with a few tricky bits that is almost entirely unmapped.
@@ -30,8 +30,10 @@ const webglRendererProps: Props<WebglRendererProps> = {
 }
 
 function useWebglRenderer(props: FromProps<WebglRendererProps>, webglRenderer: WebGLRenderer) {
-  const { getItem, storeRef } = useScopeProvider()
-  const { storeRef: storeRef2 } = useScopeStorage(props.name, ref(webglRenderer))
+  // TODO: Pass in exposes and accepts.
+  useScopeProvider()
+  const { getItem, storeItem } = useScopeConsumer()
+  storeItem(props.name, ref(webglRenderer))
   const scene = getItem<Scene>(props.scene, isInstanceOf(Scene))
   const camera = getItem<Camera>(props.camera, isInstanceOf(Camera))
 
@@ -86,9 +88,7 @@ function useWebglRenderer(props: FromProps<WebglRendererProps>, webglRenderer: W
   })
 
   return {
-    webglRenderer,
-    storeRef,
-    storeRef2
+    webglRenderer
   }
 }
 

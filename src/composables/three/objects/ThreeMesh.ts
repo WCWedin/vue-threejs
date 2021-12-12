@@ -2,7 +2,8 @@ import { BufferGeometry, Material, Mesh } from 'three'
 import { Object3DProps, composableThreeObject3D } from '../core/ThreeObject3D'
 import { ComposableWrapper, Props, FromProps } from 'composables/Wrapped'
 import { getSyncFunctions, mapRef } from 'utils'
-import { isInstanceOf, useScopeProvider } from 'composables/Scope'
+import { isInstanceOf, useScopeConsumer } from 'composables/Scope'
+import { ref } from 'vue'
 
 export interface MeshProps extends Object3DProps {
   geometry: BufferGeometry | string | null
@@ -24,7 +25,9 @@ const meshProps: Props<MeshProps> = {
 }
 
 function useMesh(props: FromProps<MeshProps>, mesh: Mesh) {
-  const { getItem, storeRef } = useScopeProvider()
+  const { getItem, storeItem } = useScopeConsumer()
+  storeItem(props.name, ref(mesh))
+
   const sync = getSyncFunctions(mesh)
 
   const geometry = getItem<BufferGeometry | null>(props.geometry, isInstanceOf(BufferGeometry))
@@ -37,8 +40,7 @@ function useMesh(props: FromProps<MeshProps>, mesh: Mesh) {
 
   return {
     ...composableThreeObject3D.use(props, mesh),
-    mesh,
-    storeRef
+    mesh
   }
 }
 

@@ -4,6 +4,10 @@ import {
   WatchSource, WatchStopHandle, watch,
 } from 'vue'
 
+export function isString(value: unknown): value is String {
+  return (Object.prototype.toString.call(value) === '[object String]');
+}
+
 /** Starts a watcher to synchronize a variable with the value of a watch source.
  *  @template T The type of the value of the be synchronized.
  *  @param source A watch source to synchronize from.

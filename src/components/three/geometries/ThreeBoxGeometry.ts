@@ -8,6 +8,7 @@ export const ThreeBoxGeometry = defineComponent({
   props: { ...composableThreeBoxGeometry.props },
   setup(props) {
     const typedProps = fromProps(props)
+    // TODO: Make this ref reactive.
     const boxGeometry = ref(new BoxGeometry(
       typedProps.width.value, typedProps.height.value, typedProps.depth.value,
       typedProps.widthSegments.value, typedProps.heightSegments.value, typedProps.depthSegments.value

@@ -3,7 +3,7 @@ import * as three from 'three'
 import { ref, watch } from 'vue'
 import { ComposableWrapper, Props, FromProps } from 'composables/Wrapped'
 import { getSyncFunctions, mapRef, mapValueOf } from 'utils'
-import { useScopeProvider, useScopeStorage } from 'composables/Scope'
+import { useScopeConsumer } from 'composables/Scope'
 
 export class Side extends Number {
   private static frontSide = new Side(three.FrontSide)
@@ -532,8 +532,8 @@ const materialProps: Props<MaterialProps> = {
 }
 
 function useMaterial(props: FromProps<MaterialProps>, material: Material) {
-  const { storeRef } = useScopeProvider()
-  const { storeRef: storeRef2 } = useScopeStorage(props.name, ref(material))
+  const { storeItem } = useScopeConsumer()
+  storeItem(props.name, ref(material))
   const sync = getSyncFunctions(material)
 
   sync.name(mapRef(props.name, (name) => name ?? ''))
@@ -581,9 +581,7 @@ function useMaterial(props: FromProps<MaterialProps>, material: Material) {
         material.needsUpdate = true
       }
     },
-    {
-      immediate: true
-    }
+    { immediate: true }
   )
 
   watch(props.fog,
@@ -593,27 +591,21 @@ function useMaterial(props: FromProps<MaterialProps>, material: Material) {
         material.needsUpdate = true
       }
     },
-    {
-      immediate: true
-    }
+    { immediate: true }
   )
 
   watch(props.precision,
     (precision) => {
       material.precision = precision?.valueOf() ?? null
     },
-    {
-      immediate: true
-    }
+    { immediate: true }
   )
 
   watch(props.shadowSide,
     (shadowSide) => {
       material.shadowSide = shadowSide?.valueOf() ?? null
     },
-    {
-      immediate: true
-    }
+    { immediate: true }
   )
 
   watch(props.vertexColors,
@@ -623,15 +615,11 @@ function useMaterial(props: FromProps<MaterialProps>, material: Material) {
         material.needsUpdate = true
       }
     },
-    {
-      immediate: true
-    }
+    { immediate: true }
   )
 
   return {
-    material,
-    storeRef,
-    storeRef2
+    material
   }
 }
 
