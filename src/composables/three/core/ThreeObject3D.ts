@@ -1,9 +1,9 @@
 import { Euler, Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 import { computed, inject, InjectionKey, onMounted, onUnmounted, provide, ref, Ref, shallowRef, watch } from 'vue'
-import { ComposableWrapper, Props, FromProps } from 'composables/Wrapped'
-import { getSyncFunctions, getSyncByCopyFunctions, mapRef } from 'utils'
-import { useScopeConsumer } from 'composables/Scope'
-import { LookAtProps, composableLookAt } from 'composables/LookAt'
+import { ComposableWrapper, Props, FromProps } from 'vue-threejs/composables/Wrapped'
+import { getSyncFunctions, getSyncByCopyFunctions, mapRef } from 'vue-threejs/utils'
+import { useScopeConsumer } from 'vue-threejs/composables/Scope'
+import { LookAtProps, composableLookAt } from 'vue-threejs/composables/LookAt'
 
 /** A 3D rotation represented as a unit-vector rotation axis paired with rotation angle in radians. */
 export class AxisAngle {
@@ -161,23 +161,23 @@ function useObject3D(props: FromProps<Object3DProps>, object3D: Object3D) {
   syncByCopy.scale(props.scale)
 
   // The rotation property accepts multiple types; the backing object3D has a corresponding set method for each type.
-  watch(props.rotation,
-    (rotation: Quaternion | Euler | Matrix4 | AxisAngle) => {
-      if (rotation instanceof Quaternion) {
-        object3D.setRotationFromQuaternion(rotation)
-      } else if (rotation instanceof Euler) {
-        object3D.setRotationFromEuler(rotation)
-      } else if (rotation instanceof Matrix4) {
-        object3D.setRotationFromMatrix(rotation)
-      } else { // (rotation instanceof AxisAngle)
-        object3D.setRotationFromAxisAngle(rotation.axis, rotation.angle)
-      }
-    },
-    {
-      immediate: true,
-      deep: true
-    }
-  )
+  // watch(props.rotation,
+  //   (rotation: Quaternion | Euler | Matrix4 | AxisAngle) => {
+  //     if (rotation instanceof Quaternion) {
+  //       object3D.setRotationFromQuaternion(rotation)
+  //     } else if (rotation instanceof Euler) {
+  //       object3D.setRotationFromEuler(rotation)
+  //     } else if (rotation instanceof Matrix4) {
+  //       object3D.setRotationFromMatrix(rotation)
+  //     } else { // (rotation instanceof AxisAngle)
+  //       object3D.setRotationFromAxisAngle(rotation.axis, rotation.angle)
+  //     }
+  //   },
+  //   {
+  //     immediate: true,
+  //     deep: true
+  //   }
+  // )
 
   return {
     /** The object's position in world space. */
@@ -239,8 +239,6 @@ function useObject3D(props: FromProps<Object3DProps>, object3D: Object3D) {
     // TODO: yikes?
     onAfterRender: object3D.onAfterRender,
     onBeforeRender: object3D.onBeforeRender,
-
-    // TODO: NEXT: Implement reactive lookAt functionality as a composable.
 
     // TODO: these
     animations: object3D.animations,

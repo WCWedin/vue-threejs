@@ -1,6 +1,6 @@
 import { Camera, Scene, Vector2, WebGLRenderer } from 'three'
-import { ComposableWrapper, Props, FromProps } from 'composables/Wrapped'
-import { isInstanceOf, useScopeConsumer, useScopeProvider } from 'composables/Scope'
+import { ComposableWrapper, Props, FromProps } from 'vue-threejs/composables/Wrapped'
+import { isInstanceOf, useScopeConsumer, useScopeProvider } from 'vue-threejs/composables/Scope'
 import { ref, watch } from 'vue'
 
 // TODO: This is a large type with a few tricky bits that is almost entirely unmapped.

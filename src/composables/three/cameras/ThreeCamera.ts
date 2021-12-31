@@ -1,6 +1,6 @@
 import { Camera } from 'three'
 import { Object3DProps, composableThreeObject3D } from '../core/ThreeObject3D'
-import { ComposableWrapper, FromProps } from 'composables/Wrapped'
+import { ComposableWrapper, FromProps } from 'vue-threejs/composables/Wrapped'
 
 export type CameraProps = Object3DProps
 

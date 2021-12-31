@@ -1,8 +1,8 @@
 import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute } from 'three'
 import { computed, readonly, Ref, ToRefs, watch } from 'vue'
-import { ComposableWrapper, Props } from 'composables/Wrapped'
-import { getSyncFunctions, mapRef } from 'utils'
-import { useScopeConsumer } from 'composables/Scope'
+import { ComposableWrapper, Props } from 'vue-threejs/composables/Wrapped'
+import { getSyncFunctions, mapRef } from 'vue-threejs/utils'
+import { useScopeConsumer } from 'vue-threejs/composables/Scope'
 
 export class DrawRange {
   public start: number

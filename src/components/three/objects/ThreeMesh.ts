@@ -1,7 +1,7 @@
 import { Mesh } from 'three'
-import { fromProps } from 'composables/Wrapped'
+import { fromProps } from 'vue-threejs/composables/Wrapped'
 import { defineComponent, h, VNode } from 'vue'
-import { composableThreeMesh } from 'composables/three/objects/ThreeMesh'
+import { composableThreeMesh } from 'vue-threejs/composables/three/objects/ThreeMesh'
 
 export const ThreeMesh = defineComponent({
   name: 'ThreeMesh',

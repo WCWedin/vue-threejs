@@ -1,6 +1,6 @@
 import { Material } from 'three'
-import { composableThreeMaterial } from 'composables/three/materials/ThreeMaterial'
-import { fromProps } from 'composables/Wrapped'
+import { composableThreeMaterial } from 'vue-threejs/composables/three/materials/ThreeMaterial'
+import { fromProps } from 'vue-threejs/composables/Wrapped'
 import { defineComponent, h, VNode } from 'vue'
 
 export const ThreeMaterial = defineComponent({

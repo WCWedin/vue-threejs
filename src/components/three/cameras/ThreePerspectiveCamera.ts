@@ -1,6 +1,6 @@
 import { PerspectiveCamera } from 'three'
-import { composableThreePerspectiveCamera } from 'composables/three/cameras/ThreePerspectiveCamera'
-import { fromProps } from 'composables/Wrapped'
+import { composableThreePerspectiveCamera } from 'vue-threejs/composables/three/cameras/ThreePerspectiveCamera'
+import { fromProps } from 'vue-threejs/composables/Wrapped'
 import { defineComponent, h, VNode } from 'vue'
 
 export const ThreePerspectiveCamera = defineComponent({

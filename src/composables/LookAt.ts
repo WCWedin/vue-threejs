@@ -1,12 +1,14 @@
 import { Object3D, Vector3 } from 'three'
-import { isRef, Ref, watch } from 'vue'
-import { ComposableWrapper, Props, FromProps } from 'composables/Wrapped'
-import { useScopeConsumer, isInstanceOf } from 'composables/Scope'
-import { mapRef } from 'utils'
+import { watch } from 'vue'
+import { ComposableWrapper, Props, FromProps } from 'vue-threejs/composables/Wrapped'
+import { useScopeConsumer, isInstanceOf } from 'vue-threejs/composables/Scope'
+import { mapRef } from 'vue-threejs/utils'
 
 export interface LookAtProps {
-  /** The target to orient the object toward. */
-  lookTarget: Ref<Object3D | Vector3 | string>
+  /** The target to orient the object toward. 
+   *  @default null
+   */
+  lookTarget: Object3D | Vector3 | string | null
 
   // TODO: Behavior props?
 }
@@ -14,22 +16,19 @@ export interface LookAtProps {
 const lookAtProps: Props<LookAtProps> = {
   /** @borrows LookAtProps.target */
   lookTarget: {
-    type: Object,
-    validator: (target) => {
-      return isRef<Object3D>(target)
-        || isRef<Vector3>(target)
-        || isRef<string>(target)
-    }
+    type: [Object3D, Vector3, String],
+    default: null,
+    required: false
   }
 }
 
 function useLookAt(props: FromProps<LookAtProps>, object: Object3D) {
   const { getItem } = useScopeConsumer()
-  const lookTarget = getItem(props.lookTarget, isInstanceOf<Object3D | Vector3>(Object3D, Vector3))
+  const lookTarget = getItem(props.lookTarget, isInstanceOf<Object3D | Vector3 | null>(Object3D, Vector3))
   const lookPosition = mapRef(lookTarget, (value) => value instanceof Object3D ? value.position : value)
   watch([lookPosition, () => object.position],
     ([lookPosition]) => {
-      if (lookPosition !== undefined) {
+      if (lookPosition) {
         object.lookAt(lookPosition)
       }
     },

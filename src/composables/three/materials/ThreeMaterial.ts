@@ -1,9 +1,9 @@
 import { Material, Plane } from 'three'
 import * as three from 'three'
 import { ref, watch } from 'vue'
-import { ComposableWrapper, Props, FromProps } from 'composables/Wrapped'
-import { getSyncFunctions, mapRef, mapValueOf } from 'utils'
-import { useScopeConsumer } from 'composables/Scope'
+import { ComposableWrapper, Props, FromProps } from 'vue-threejs/composables/Wrapped'
+import { getSyncFunctions, mapRef, mapValueOf } from 'vue-threejs/utils'
+import { useScopeConsumer } from 'vue-threejs/composables/Scope'
 
 export class Side extends Number {
   private static frontSide = new Side(three.FrontSide)

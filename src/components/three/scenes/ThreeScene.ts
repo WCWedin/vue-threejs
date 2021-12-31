@@ -1,6 +1,6 @@
 import { Scene } from 'three'
-import { composableThreeScene } from 'composables/three/scenes/ThreeScene'
-import { fromProps } from 'composables/Wrapped'
+import { composableThreeScene } from 'vue-threejs/composables/three/scenes/ThreeScene'
+import { fromProps } from 'vue-threejs/composables/Wrapped'
 import { defineComponent, h, VNode } from 'vue'
 
 export const ThreeScene = defineComponent({

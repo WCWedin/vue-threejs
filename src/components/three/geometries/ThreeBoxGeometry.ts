@@ -1,6 +1,6 @@
 import { BoxGeometry } from 'three'
-import { composableThreeBoxGeometry } from 'composables/three/geometries/ThreeBoxGeometry'
-import { fromProps } from 'composables/Wrapped'
+import { composableThreeBoxGeometry } from 'vue-threejs/composables/three/geometries/ThreeBoxGeometry'
+import { fromProps } from 'vue-threejs/composables/Wrapped'
 import { defineComponent, h, VNode, ref } from 'vue'
 
 export const ThreeBoxGeometry = defineComponent({

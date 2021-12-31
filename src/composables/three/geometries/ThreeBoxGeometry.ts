@@ -1,6 +1,6 @@
 import { BoxGeometry } from 'three'
 import { computed, Ref, ToRefs } from 'vue'
-import { ComposableWrapper, Props } from 'composables/Wrapped'
+import { ComposableWrapper, Props } from 'vue-threejs/composables/Wrapped'
 import { BufferGeometryProps, composableThreeBufferGeometry } from '../core/ThreeBufferGeometry'
 
 export interface BoxGeometryProps extends BufferGeometryProps {
